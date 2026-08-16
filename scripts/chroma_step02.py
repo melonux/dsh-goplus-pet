@@ -1,4 +1,4 @@
-"""Remove green backgrounds from step01 videos into transparent WebM files in step02/."""
+"""Remove red backgrounds from step01 videos into transparent WebM files in step02/."""
 
 from __future__ import annotations
 
@@ -10,11 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "step01"
 OUT = ROOT / "step02"
-# 统一使用工作区自带的 ffmpeg（素材处理链零第三方依赖）
-FFMPEG = str(ROOT / ".tools" / "ffmpeg-9.0.1-essentials_build" / "bin" / "ffmpeg.exe")
+FFMPEG = str(ROOT / ".tools" / "ffmpeg.exe")
 
-SIMILARITY = 0.04
-SMOOTHNESS = 0.0
+SIMILARITY = 0.08
+SMOOTHNESS = 0.08  # 边缘渐变透明，避免硬切
 
 WIDTH = 320
 HEIGHT = 180
@@ -23,8 +22,8 @@ MARGIN_Y = HEIGHT // 10
 FRAMES_PER_VIDEO = 10
 QUANTIZE = 8
 
-GREEN_HUE_MIN = 70.0
-GREEN_HUE_MAX = 170.0
+RED_HUE_MAX_LOW = 15.0
+RED_HUE_MIN_HIGH = 345.0
 SATURATION_MIN = 0.15
 VALUE_MIN = 0.15
 
@@ -78,18 +77,29 @@ def sample_background_color(video: Path) -> str:
                 index = (y * WIDTH + x) * 3
                 r, g, b = frame[index], frame[index + 1], frame[index + 2]
                 hue, sat, val = rgb_to_hsv(r, g, b)
-                if GREEN_HUE_MIN <= hue <= GREEN_HUE_MAX and sat >= SATURATION_MIN and val >= VALUE_MIN:
+                is_red = hue <= RED_HUE_MAX_LOW or hue >= RED_HUE_MIN_HIGH
+                if is_red and sat >= SATURATION_MIN and val >= VALUE_MIN:
                     q = (r // QUANTIZE * QUANTIZE, g // QUANTIZE * QUANTIZE, b // QUANTIZE * QUANTIZE)
                     counter[q] += 1
 
     if not counter:
-        raise RuntimeError(f"No green pixels found in border of {video.name}")
+        raise RuntimeError(f"No red pixels found in border of {video.name}")
     (r, g, b), _ = counter.most_common(1)[0]
     return "#%02X%02X%02X" % (r, g, b)
 
 
 def convert_video(src: Path, dst: Path, color: str) -> None:
-    vf = f"chromakey=0x{color.lstrip('#')}:{SIMILARITY}:{SMOOTHNESS},format=yuva420p"
+    hex_color = color.lstrip("#")
+    vf = (
+        f"chromakey=0x{hex_color}:{SIMILARITY}:{SMOOTHNESS},"
+        "format=rgba,"
+        "geq="
+        "r='min(r(X,Y),max(g(X,Y),b(X,Y)))':"
+        "g='g(X,Y)':"
+        "b='b(X,Y)':"
+        "a='alpha(X,Y)',"
+        "format=yuva420p"
+    )
     cmd = [
         FFMPEG,
         "-y",

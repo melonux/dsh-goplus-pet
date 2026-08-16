@@ -24,10 +24,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "dsh-pet" / "assets" / "thumb"
-OUT = ROOT / "dsh-pet" / "assets" / "preview"
+SRC = ROOT / "step04"
+OUT = ROOT / "step05"
 # 统一使用工作区自带的 ffmpeg（素材处理链零第三方依赖）
-FFMPEG = str(ROOT / ".tools" / "ffmpeg-9.0.1-essentials_build" / "bin" / "ffmpeg.exe")
+FFMPEG = str(ROOT / ".tools" / "ffmpeg.exe")
 
 # GIF 参数（GIF 体积大，预览用低帧率 + 中等尺寸即可）
 WIDTH = 220    # 预览宽度（保持宽高比）

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "step02"
 OUT = ROOT / "step03"
 # 统一使用工作区自带的 ffmpeg（素材处理链零第三方依赖）
-FFMPEG = str(ROOT / ".tools" / "ffmpeg-9.0.1-essentials_build" / "bin" / "ffmpeg.exe")
+FFMPEG = str(ROOT / ".tools" / "ffmpeg.exe")
 
 CANVAS_W = 1200
 CANVAS_H = 1200

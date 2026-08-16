@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "step03"
 OUT = ROOT / "step04"
 # 统一使用工作区自带的 ffmpeg（素材处理链零第三方依赖）
-FFMPEG = str(ROOT / ".tools" / "ffmpeg-9.0.1-essentials_build" / "bin" / "ffmpeg.exe")
+FFMPEG = str(ROOT / ".tools" / "ffmpeg.exe")
 
 # 转码参数（调这里改画质/分辨率）
 TARGET = 360   # thumb 画布边长（正方形，与 1200 母版同比例）
